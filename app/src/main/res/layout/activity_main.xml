@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coord"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="8dp"
+    tools:context="com.monitoreomayorista.superapp.Main">
+
+    <ImageButton
+        android:id="@+id/loginBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/transparent"
+        android:elevation="8dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_account_box_black_24dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:background="#FFFFFF"
+        android:gravity="center_vertical">
+
+        <RelativeLayout
+            android:id="@+id/btnAmbulancia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:clickable="true"
+            android:contextClickable="false"
+            android:foregroundGravity="left|center_vertical">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/iwx1"
+                android:background="#388E3C"
+                android:clickable="false"
+                android:elevation="4dp"
+                android:text="Ambulancia"
+                android:textColor="#FFFFFF"
+                android:textSize="22dp"/>
+
+            <ImageView
+                android:id="@+id/iwx1"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:elevation="4dp"
+                android:src="@drawable/ambulance" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/btnBomberos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/btnAmbulancia"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:clickable="true"
+            android:contextClickable="false"
+            android:foregroundGravity="left|center_vertical">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/iwx2"
+                android:background="#D32F2F"
+                android:clickable="false"
+                android:elevation="4dp"
+                android:text="Bomberos"
+                android:textColor="#FFFFFF"
+                android:textSize="22dp" />
+
+            <ImageView
+                android:id="@+id/iwx2"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:elevation="4dp"
+                android:src="@drawable/fire" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/btnPanico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/btnBomberos"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:clickable="true"
+            android:contextClickable="false"
+            android:foregroundGravity="left|center_vertical">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/iwx3"
+                android:background="#1976D2"
+                android:clickable="false"
+                android:elevation="4dp"
+                android:text="Pánico"
+                android:textColor="#FFFFFF"
+                android:textSize="22dp" />
+
+            <ImageView
+                android:id="@+id/iwx3"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:elevation="4dp"
+                android:src="@drawable/policeman" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/btnTVO"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/btnPanico"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:clickable="true"
+            android:contextClickable="false"
+            android:foregroundGravity="left|center_vertical">
+
+            <Button
+                android:id="@+id/bwx4"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/iwx4"
+                android:background="#FFB300"
+                android:clickable="false"
+                android:elevation="4dp"
+                android:text="TVO"
+                android:textColor="#FFFFFF"
+                android:textSize="22dp" />
+
+            <TextView
+                android:id="@+id/tvo1txt"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/iwx4"
+                android:background="#FFB300"
+                android:text="Lo estamos observando"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="22dp"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/tvo2txt"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/tvo1txt"
+                android:layout_toEndOf="@+id/iwx4"
+                android:background="#FFB300"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                android:textColor="#FFFFFF"
+                android:textSize="22dp"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/iwx4"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:elevation="4dp"
+                android:src="@drawable/tvo" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/imgRC"
+        android:layout_width="wrap_content"
+        android:layout_height="75dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerInside"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#000000"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp">
+
+        <TextView
+            android:id="@+id/statusTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#FFFFFF"
+            android:textSize="18dp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

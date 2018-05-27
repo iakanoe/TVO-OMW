@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">TVO</string>
+    <string name="clave">Clave</string>
+    <string name="usuario">Usuario</string>
+    <string name="numero_de_abonado">Abonado</string>
+    <string name="rc">RC</string>
+    <string name="obteniendo_datos">Obteniendo datos</string>
+</resources>
