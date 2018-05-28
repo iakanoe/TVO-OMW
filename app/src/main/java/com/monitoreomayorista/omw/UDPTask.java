@@ -1,4 +1,4 @@
-package com.monitoreomayorista.superapp;
+package com.monitoreomayorista.omw;
 
 import android.os.AsyncTask;
 import android.util.Log;

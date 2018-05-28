@@ -1,15 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        config {
-            storeFile file('C:/Users/Ianick/AndroidKeystores/SuperApp_v1.0.jks')
-        }
-    }
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
     defaultConfig {
-        applicationId "com.monitoreomayorista.superapp"
+        applicationId "com.monitoreomayorista.omw"
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 16

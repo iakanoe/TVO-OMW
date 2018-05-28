@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="8dp"
-    tools:context="com.monitoreomayorista.superapp.Main">
+    tools:context="com.monitoreomayorista.omw.Main">
 
     <ImageButton
         android:id="@+id/loginBtn"
@@ -131,7 +131,7 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/btnTVO"
+            android:id="@+id/btnOMW"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
@@ -151,30 +151,32 @@
                 android:background="#FFB300"
                 android:clickable="false"
                 android:elevation="4dp"
-                android:text="TVO"
+                android:text="En camino"
                 android:textColor="#FFFFFF"
                 android:textSize="22dp" />
 
             <TextView
-                android:id="@+id/tvo1txt"
+                android:id="@+id/omw1txt"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/iwx4"
                 android:background="#FFB300"
-                android:text="Lo estamos observando"
+                android:paddingTop="8dp"
+                android:text="Toque para cancelar"
                 android:textAlignment="center"
                 android:textColor="#FFFFFF"
-                android:textSize="22dp"
+                android:textSize="18dp"
                 android:visibility="gone"/>
 
             <TextView
-                android:id="@+id/tvo2txt"
+                android:id="@+id/omw2txt"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_below="@+id/tvo1txt"
+                android:layout_below="@+id/omw1txt"
                 android:layout_toEndOf="@+id/iwx4"
                 android:background="#FFB300"
+                android:paddingTop="8dp"
                 android:textAlignment="center"
                 android:textAllCaps="true"
                 android:textColor="#FFFFFF"

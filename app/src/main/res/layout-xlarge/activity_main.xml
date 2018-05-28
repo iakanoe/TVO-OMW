@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.monitoreomayorista.superapp.Main"
-    android:layout_margin="10dp">
+    android:layout_margin="10dp"
+    tools:context="com.monitoreomayorista.omw.Main">
 
     <View
         android:layout_width="match_parent"

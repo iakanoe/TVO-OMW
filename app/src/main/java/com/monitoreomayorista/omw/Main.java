@@ -1,13 +1,18 @@
-package com.monitoreomayorista.superapp;
+package com.monitoreomayorista.omw;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -30,8 +35,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Main extends AppCompatActivity {
     SharedPreferences tinyDB;
@@ -43,20 +46,49 @@ public class Main extends AppCompatActivity {
 	String rcName;
 	String smsNum = "";
 	String ack = "";
-	int minutos;
-	int segundos;
-    Timer timer;
     Handler handler = new Handler();
     Handler h2 = new Handler();
     Vibrator vibrator;
     EventRunnable runMedica = new EventRunnable(Evento.MEDICA);
     EventRunnable runFuego = new EventRunnable(Evento.FUEGO);
     EventRunnable runPanico = new EventRunnable(Evento.PANICO);
-    EventRunnable runTVO = new EventRunnable(Evento.TVO);
+	OMWRunnable runOMW = new OMWRunnable();
+	UnbindRunnable runUnbind = new UnbindRunnable();
 	//EventRunnable runTest = new EventRunnable(Evento.TEST);
 	Map<String, Integer> rc2img = new HashMap<>();
 	SendSMS sendSMS;
 	boolean badRC = false;
+	TimerService.Binder binder;
+	ServiceConnection sAlreadyConn = new ServiceConnection(){
+		@Override
+		public void onServiceConnected(ComponentName componentName, final IBinder iBinder){
+			runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					servAlreadyConnected(iBinder);
+				}
+			});
+		}
+		
+		@Override
+		public void onServiceDisconnected(ComponentName componentName){
+		}
+	};
+	ServiceConnection sconn = new ServiceConnection(){
+		@Override
+		public void onServiceConnected(ComponentName componentName, final IBinder iBinder){
+			runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					servConnected(iBinder);
+				}
+			});
+		}
+		
+		@Override
+		public void onServiceDisconnected(ComponentName componentName){
+		}
+	};
 	
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,13 +100,30 @@ public class Main extends AppCompatActivity {
 		initializeUi();
 		refrescar();
 		createMap();
+		if(isTimerRunning())
+			bindService(new Intent(getApplicationContext(), TimerService.class), sAlreadyConn, Context.BIND_AUTO_CREATE);
+	}
+	
+	@Override
+	protected void onDestroy(){
+		super.onDestroy();
+	}
+	
+	boolean isTimerRunning(){
+		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		for(ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
+			if(TimerService.class.getName().equals(service.service.getClassName())){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	void createMap(){
 		rc2img.put("A5", R.drawable.logo_ays);
 	}
-
-    void initializeUi(){
+	
+	void initializeUi(){
         (findViewById(R.id.btnAmbulancia)).setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent event) {
                 switch(event.getAction()){
@@ -111,18 +160,19 @@ public class Main extends AppCompatActivity {
 	            return v.performClick();
             }
         });
-        (findViewById(R.id.btnTVO)).setOnTouchListener(new View.OnTouchListener() {
-            @Override public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()){
-                    case MotionEvent.ACTION_DOWN:
-                        handler.postDelayed(runTVO, 1000);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        handler.removeCallbacks(runTVO);
-                }
-	            return v.performClick();
-            }
-        });
+		(findViewById(R.id.btnOMW)).setOnTouchListener(new View.OnTouchListener(){
+			@Override
+			public boolean onTouch(View view, MotionEvent event){
+				switch(event.getAction()){
+					case MotionEvent.ACTION_DOWN:
+						handler.postDelayed(runOMW, 1000);
+						break;
+					case MotionEvent.ACTION_UP:
+						handler.removeCallbacks(runOMW);
+				}
+				return true;
+			}
+		});
         /*(findViewById(R.id.btnTest)).setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent event) {
                 switch(event.getAction()){
@@ -143,7 +193,7 @@ public class Main extends AppCompatActivity {
 		    }
 	    });
     }
-	
+
 	void getThings(){
 		@SuppressLint("InflateParams") final View v = getLayoutInflater().inflate(R.layout.loading_dialog, null);
 		final AlertDialog loadingDialog = new AlertDialog.Builder(this)
@@ -194,7 +244,7 @@ public class Main extends AppCompatActivity {
 			}).create().show();
 		return false;
 	}
-
+	
 	void crearLoginDialog(){
 		@SuppressLint("InflateParams") final View v = getLayoutInflater().inflate(R.layout.login_dialog, null);
 		if(!(numAbonado.equals("") || claveAbonado.equals("") || userAbonado.equals("") || rcAbonado.equals(""))){
@@ -270,26 +320,6 @@ public class Main extends AppCompatActivity {
 	}
 	
 	@SuppressLint({"SetTextI18n", "DefaultLocale"})
-	void timer(){
-		if(segundos == 0 && minutos == 0){
-			timer.cancel();
-			timer.schedule(new TimerTask() {
-				@Override public void run() { runOnUiThread(new Runnable() {
-					@Override public void run() {
-						(findViewById(R.id.btnTVO)).setClickable(false);
-						(findViewById(R.id.bwx4)).setVisibility(View.VISIBLE);
-						(findViewById(R.id.tvo1txt)).setVisibility(View.GONE);
-						(findViewById(R.id.tvo2txt)).setVisibility(View.GONE);
-					}
-				});}}, 1000);
-		} else if(segundos == 0){
-			segundos = 59;
-			minutos--;
-		} else segundos--;
-		((TextView) findViewById(R.id.tvo2txt)).setText(String.valueOf(minutos) + ':' + String.format("%02d", segundos));
-	}
-	
-	@SuppressLint({"SetTextI18n", "DefaultLocale"})
 	void callback(Evento evt, boolean result){
 		vibrator.vibrate(200);
 		if (!result) {
@@ -300,27 +330,6 @@ public class Main extends AppCompatActivity {
         if (evt == Evento.TEST) {
             Snackbar.make(findViewById(R.id.coord), "La señal de prueba ha sido recibida", Snackbar.LENGTH_SHORT).show();
             return;
-        }
-        if (evt == Evento.TVO) {
-	        (findViewById(R.id.btnTVO)).setEnabled(false);
-	        (findViewById(R.id.bwx4)).setVisibility(View.GONE);
-            (findViewById(R.id.tvo1txt)).setVisibility(View.VISIBLE);
-            (findViewById(R.id.tvo2txt)).setVisibility(View.VISIBLE);
-            minutos = 5;
-            segundos = 0;
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
-	            @Override
-	            public void run(){
-		            runOnUiThread(new Runnable(){
-			            @Override
-			            public void run(){
-				            timer();
-			            }
-		            });
-	            }
-            }, 1000, 1000);
-            ((TextView) findViewById(R.id.tvo2txt)).setText(String.valueOf(minutos) + ':' + String.format("%02d", segundos));
         }
         Snackbar.make(findViewById(R.id.coord), "Señal enviada", Snackbar.LENGTH_SHORT).show();
     }
@@ -403,11 +412,78 @@ public class Main extends AppCompatActivity {
 			}).create().show();
 	}
 	
+	void onMyWay(){
+		startService(new Intent(getApplicationContext(), TimerService.class));
+		bindService(new Intent(getApplicationContext(), TimerService.class), sconn, Context.BIND_AUTO_CREATE);
+	}
+	
+	void servConnected(IBinder b){
+		(findViewById(R.id.bwx4)).setVisibility(View.GONE);
+		(findViewById(R.id.omw1txt)).setVisibility(View.VISIBLE);
+		(findViewById(R.id.omw2txt)).setVisibility(View.VISIBLE);
+		(findViewById(R.id.btnOMW)).setOnTouchListener(new View.OnTouchListener(){
+			@Override
+			public boolean onTouch(View view, MotionEvent event){
+				switch(event.getAction()){
+					case MotionEvent.ACTION_UP:
+						runUnbind.run();
+				}
+				return true;
+			}
+		});
+		binder = (TimerService.Binder) b;
+		binder.getService().start(new TimerService.TimerListener(){
+			@Override
+			public void onTick(long l){
+				((TextView) findViewById(R.id.omw2txt)).setText(binder.getService().getTime());
+			}
+			
+			@Override
+			public void onFinish(){
+				unbindTimer();
+			}
+		}, new Abonado(rcAbonado, numAbonado, claveAbonado, userAbonado, portAbonado));
+	}
+	
+	void unbindTimer(){
+		unbindService(sconn);
+		unbindService(sAlreadyConn);
+		initializeUi();
+	}
+	
+	void servAlreadyConnected(IBinder b){
+		(findViewById(R.id.bwx4)).setVisibility(View.GONE);
+		(findViewById(R.id.omw1txt)).setVisibility(View.VISIBLE);
+		(findViewById(R.id.omw2txt)).setVisibility(View.VISIBLE);
+		((TextView) findViewById(R.id.omw2txt)).setText(binder.getService().getTime());
+		(findViewById(R.id.btnOMW)).setOnTouchListener(new View.OnTouchListener(){
+			@Override
+			public boolean onTouch(View view, MotionEvent event){
+				switch(event.getAction()){
+					case MotionEvent.ACTION_UP:
+						runUnbind.run();
+				}
+				return true;
+			}
+		});
+		binder = (TimerService.Binder) b;
+		binder.getService().setListener(new TimerService.TimerListener(){
+			@Override
+			public void onTick(long l){
+				((TextView) findViewById(R.id.omw2txt)).setText(binder.getService().getTime());
+			}
+			
+			@Override
+			public void onFinish(){
+				unbindTimer();
+			}
+		});
+	}
 	enum Evento{
 		MEDICA(100),
 		FUEGO(110),
 		PANICO(120),
-		TVO(886),
+		OMW(987),
 		TEST(603);
 		int code;
 		
@@ -433,6 +509,34 @@ public class Main extends AppCompatActivity {
 		}
 	}
 	
+	class OMWRunnable implements Runnable{
+		OMWRunnable(){
+		}
+		
+		public void run(){
+			runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					onMyWay();
+				}
+			});
+		}
+	}
+	
+	class UnbindRunnable implements Runnable{
+		UnbindRunnable(){
+		}
+		
+		public void run(){
+			runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					unbindTimer();
+				}
+			});
+		}
+	}
+
 	class SendSMS implements Runnable{
 		private Evento evt;
 		SendSMS(Evento e){
