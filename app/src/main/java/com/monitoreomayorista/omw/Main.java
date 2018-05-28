@@ -109,6 +109,13 @@ public class Main extends AppCompatActivity {
 			bindService(new Intent(getApplicationContext(), TimerService.class), sAlreadyConn, Context.BIND_AUTO_CREATE);
 	}
 	
+	@Override
+	protected void onDestroy(){
+		sconnected = false;
+		saconnected = false;
+		super.onDestroy();
+	}
+	
 	boolean isTimerRunning(){
 		ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 		for(ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){

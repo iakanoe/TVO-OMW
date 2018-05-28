@@ -76,8 +76,7 @@ public class TimerService extends Service{
 	}
 	
 	private void createTimer(){
-		//timer = new CountDownTimer(300000, 500){
-		timer = new CountDownTimer(10000, 500){
+		timer = new CountDownTimer(300000, 500){
 			@Override
 			public void onTick(long millis){
 				time = String.valueOf((int) (millis / 60000)) + ":" + String.format("%02d", (int) ((millis % 60000) / 1000));
@@ -142,17 +141,15 @@ public class TimerService extends Service{
 	
 	private void sendNotVencido(){
 		not.setNumber(++numMsg)
-			.setContentIntent(null)
 			.setContentTitle("En camino vencido")
-			.setContentText("Enviando señal de vencido a la central.")
-			.setOngoing(false)
-			.setSubText(null);
-		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NotID, not.build());
+			.setContentText("Se envió una señal de en camino vencido a la central.")
+			.setAutoCancel(true)
+			.setOngoing(false);
+		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NotID+1, not.build());
 	}
 	
 	public interface TimerListener{
 		void onTick(long l);
-		
 		void onFinish();
 	}
 	
