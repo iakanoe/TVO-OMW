@@ -7,8 +7,8 @@ android {
         applicationId "com.monitoreomayorista.omw"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 16
-        versionName "1.61"
+        versionCode 1
+        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

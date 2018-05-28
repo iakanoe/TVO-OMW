@@ -1,6 +1,7 @@
 package com.monitoreomayorista.omw;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -57,10 +58,8 @@ public class TimerService extends Service{
 		return binder;
 	}
 	
-	@Override
-	public boolean onUnbind(Intent intent){
+	public void stopTimer(){
 		timer.cancel();
-		return super.onUnbind(intent);
 	}
 	
 	private void createNot(){
@@ -77,7 +76,8 @@ public class TimerService extends Service{
 	}
 	
 	private void createTimer(){
-		timer = new CountDownTimer(300000, 500){
+		//timer = new CountDownTimer(300000, 500){
+		timer = new CountDownTimer(10000, 500){
 			@Override
 			public void onTick(long millis){
 				time = String.valueOf((int) (millis / 60000)) + ":" + String.format("%02d", (int) ((millis % 60000) / 1000));
@@ -88,10 +88,9 @@ public class TimerService extends Service{
 			
 			@Override
 			public void onFinish(){
-				listener.onFinish();
-				createNotVencido();
-				sendNot();
+				sendNotVencido();
 				enviarEvento();
+				listener.onFinish();
 			}
 		};
 	}
@@ -141,13 +140,14 @@ public class TimerService extends Service{
 		startForeground(NotID, not.build());
 	}
 	
-	private void createNotVencido(){
+	private void sendNotVencido(){
 		not.setNumber(++numMsg)
 			.setContentIntent(null)
 			.setContentTitle("En camino vencido")
 			.setContentText("Enviando señal de vencido a la central.")
 			.setOngoing(false)
 			.setSubText(null);
+		((NotificationManager) getSystemService(NOTIFICATION_SERVICE)).notify(NotID, not.build());
 	}
 	
 	public interface TimerListener{

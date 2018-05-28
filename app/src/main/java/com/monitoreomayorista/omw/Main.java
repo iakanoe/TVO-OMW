@@ -54,32 +54,19 @@ public class Main extends AppCompatActivity {
     EventRunnable runPanico = new EventRunnable(Evento.PANICO);
 	OMWRunnable runOMW = new OMWRunnable();
 	UnbindRunnable runUnbind = new UnbindRunnable();
-	//EventRunnable runTest = new EventRunnable(Evento.TEST);
 	Map<String, Integer> rc2img = new HashMap<>();
 	SendSMS sendSMS;
 	boolean badRC = false;
 	TimerService.Binder binder;
-	ServiceConnection sAlreadyConn = new ServiceConnection(){
-		@Override
-		public void onServiceConnected(ComponentName componentName, final IBinder iBinder){
-			runOnUiThread(new Runnable(){
-				@Override
-				public void run(){
-					servAlreadyConnected(iBinder);
-				}
-			});
-		}
-		
-		@Override
-		public void onServiceDisconnected(ComponentName componentName){
-		}
-	};
+	boolean sconnected = false;
+	boolean saconnected = false;
 	ServiceConnection sconn = new ServiceConnection(){
 		@Override
 		public void onServiceConnected(ComponentName componentName, final IBinder iBinder){
 			runOnUiThread(new Runnable(){
 				@Override
 				public void run(){
+					sconnected = true;
 					servConnected(iBinder);
 				}
 			});
@@ -87,6 +74,24 @@ public class Main extends AppCompatActivity {
 		
 		@Override
 		public void onServiceDisconnected(ComponentName componentName){
+			sconnected = false;
+		}
+	};
+	ServiceConnection sAlreadyConn = new ServiceConnection(){
+		@Override
+		public void onServiceConnected(ComponentName componentName, final IBinder iBinder){
+			runOnUiThread(new Runnable(){
+				@Override
+				public void run(){
+					saconnected = true;
+					servAlreadyConnected(iBinder);
+				}
+			});
+		}
+		
+		@Override
+		public void onServiceDisconnected(ComponentName componentName){
+			saconnected = false;
 		}
 	};
 	
@@ -102,11 +107,6 @@ public class Main extends AppCompatActivity {
 		createMap();
 		if(isTimerRunning())
 			bindService(new Intent(getApplicationContext(), TimerService.class), sAlreadyConn, Context.BIND_AUTO_CREATE);
-	}
-	
-	@Override
-	protected void onDestroy(){
-		super.onDestroy();
 	}
 	
 	boolean isTimerRunning(){
@@ -164,11 +164,8 @@ public class Main extends AppCompatActivity {
 			@Override
 			public boolean onTouch(View view, MotionEvent event){
 				switch(event.getAction()){
-					case MotionEvent.ACTION_DOWN:
-						handler.postDelayed(runOMW, 1000);
-						break;
 					case MotionEvent.ACTION_UP:
-						handler.removeCallbacks(runOMW);
+						runOMW.run();
 				}
 				return true;
 			}
@@ -418,6 +415,7 @@ public class Main extends AppCompatActivity {
 	}
 	
 	void servConnected(IBinder b){
+		vibrator.vibrate(200);
 		(findViewById(R.id.bwx4)).setVisibility(View.GONE);
 		(findViewById(R.id.omw1txt)).setVisibility(View.VISIBLE);
 		(findViewById(R.id.omw2txt)).setVisibility(View.VISIBLE);
@@ -446,16 +444,21 @@ public class Main extends AppCompatActivity {
 	}
 	
 	void unbindTimer(){
-		unbindService(sconn);
-		unbindService(sAlreadyConn);
+		binder.getService().stopTimer();
+		binder.getService().stopSelf();
+		if(sconnected) unbindService(sconn);
+		if(saconnected) unbindService(sAlreadyConn);
+		(findViewById(R.id.bwx4)).setVisibility(View.VISIBLE);
+		(findViewById(R.id.omw1txt)).setVisibility(View.GONE);
+		(findViewById(R.id.omw2txt)).setVisibility(View.GONE);
 		initializeUi();
 	}
 	
 	void servAlreadyConnected(IBinder b){
+		vibrator.vibrate(200);
 		(findViewById(R.id.bwx4)).setVisibility(View.GONE);
 		(findViewById(R.id.omw1txt)).setVisibility(View.VISIBLE);
 		(findViewById(R.id.omw2txt)).setVisibility(View.VISIBLE);
-		((TextView) findViewById(R.id.omw2txt)).setText(binder.getService().getTime());
 		(findViewById(R.id.btnOMW)).setOnTouchListener(new View.OnTouchListener(){
 			@Override
 			public boolean onTouch(View view, MotionEvent event){
@@ -467,6 +470,7 @@ public class Main extends AppCompatActivity {
 			}
 		});
 		binder = (TimerService.Binder) b;
+		((TextView) findViewById(R.id.omw2txt)).setText(binder.getService().getTime());
 		binder.getService().setListener(new TimerService.TimerListener(){
 			@Override
 			public void onTick(long l){
@@ -479,6 +483,7 @@ public class Main extends AppCompatActivity {
 			}
 		});
 	}
+	
 	enum Evento{
 		MEDICA(100),
 		FUEGO(110),
